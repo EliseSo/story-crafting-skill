@@ -168,9 +168,9 @@ description: 用于完成小说/故事创作全流程的 SOP：从入口问诊�
 
 本 skill 默认从用户已有的小说写作知识库中提取方法论。知识库路径可在会话开始时由用户指定：
 
-**默认路径**：`/Users/elise/Documents/5-InProgress/8-剧本库/AI写小说知识库/`
+**默认路径**：无。skill 自带的 `references/` 下已有轻量骨架版方法论，开箱即用。
 
-**覆盖方法**：用户在会话中说出知识库路径（例如"用我自己的知识库 /path/to/my/kb"），你就把所有 reference 解析指向那个路径下的对应目录。
+**接入知识库**：用户在会话中说出知识库路径（例如"用我自己的知识库 /path/to/my/kb"），你就把所有 reference 解析指向那个路径下的对应目录。
 
 **读 `references/knowledge-base-guide.md`** 了解默认知识库的结构，以及每个 reference 文件应该从知识库的哪些子目录提取方法论。
 

@@ -73,15 +73,15 @@ story-crafting/
 
 ## 知识库配置
 
-默认从本地知识库提取方法论：
+skill 支持从本地小说写作知识库提取方法论，路径可在会话中覆盖。
 
-```
-/Users/elise/Documents/5-InProgress/8-剧本库/AI写小说知识库/
-```
+**默认配置**：skill 自带轻量骨架版方法论文档（`references/` 下），开箱即用，不依赖任何外部知识库。
 
-会话中说出新路径即可覆盖，例如："用我自己的知识库 /path/to/my/kb"。
+**接入自己的知识库**：会话中说出路径即可覆盖，例如：
+- "用我自己的知识库 /path/to/my/kb"
+- "知识库在 D:/novels/kb"
 
-如果用户没有自己的知识库，skill 自带轻量骨架版方法论文档（`references/` 下），仍可正常使用。
+如果知识库结构与默认预期不同，告诉 skill 每个子目录对应什么主题，它会按需读取。详见 `references/knowledge-base-guide.md`。
 
 ## 使用示例
 
