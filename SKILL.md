@@ -1,11 +1,39 @@
 ---
 name: story-crafting
-description: 用于完成小说/故事创作全流程的 SOP：从入口问诊、创意与人物、结构大纲、场景章节写作、修改润色到包装发布。当用户说"我想写小说""帮我想个故事""设计人物""写大纲""改稿""写开篇""短篇/中篇/长篇怎么写""小说卡壳了""帮我润色情节"等任何涉及小说创作的请求时，主动调用本 skill。即使用户只提到故事创作的某一环节（比如只想做人物设定或只想改一段），也应触发，因为本 skill 支持从任意阶段切入。
+description: 使用持久配置的小说知识库完成故事创作全流程，并为产出记录可追溯引用：入口问诊、创意人物、结构大纲、场景章节、修改润色、包装发布、创作复盘与知识晋升。当用户说“写小说、想故事、设计人物、写大纲、改稿、写开篇、卡壳、润色情节、检查知识引用、复盘创作经验、晋升知识候选、检查小说知识库”等小说创作或知识库维护请求时调用。修改、卡壳、长篇大纲、指定题材或指定方法必须深度检索知识库。
 ---
 
 # Story Crafting - 小说创作 SOP
 
 本 skill 是一套面向小说/故事创作的完整流程引擎。核心理念：**创作不是一蹴而就的灵光，而是一条"发散-收敛"交替的菱形链**。每个阶段都有明确的产出物，AI 在发散阶段做头脑风暴搭子（多给方向、不评判），在收敛阶段做结构教练（给清单、给公式、直接诊断）。
+
+---
+
+## 零、知识库预检（每次任务必须执行）
+
+正式创作前，先判断当前项目根目录、阶段、篇幅和题材，再运行：
+
+```bash
+python3 <skill-root>/scripts/story_kb.py resolve \
+  --project-root "<project-root>" \
+  --stage "<intake|ideation|character|outline|writing|revision|packaging>" \
+  --length "<short|novella|long|unknown>" \
+  --genre "<romance|xuanhuan|scifi|suspense|male|female 或留空>" \
+  --method "<指定方法或留空>" \
+  --query "<用户原始任务>"
+```
+
+按 `must_read` 顺序真实读取文件，不得只看文件名或引用模型记忆。执行规则：
+
+1. `status=verified`：读取索引、阶段 Wiki；强制任务继续读取全部返回的原始资料。
+2. `status=degraded`：仅普通任务可使用 Skill 内置 references，并在产出标记降级。
+3. `status=error` 或退出码 2：强制任务停止正式产出，报告缺失路径和修复方法。
+4. 权威顺序固定为：知识库原始资料 → Wiki 整合页 → Skill references → 模型通用知识。
+5. 未解决冲突不得自行混合；先读 `wiki/conflict-registry.md` 并报告冲突。
+
+全局配置位于 `~/.config/story-crafting/config.toml`；项目根目录的 `.story-crafting.toml` 可覆盖全局配置。不要要求用户在每次会话重复输入知识库路径。
+
+每个正式 Markdown 产出都必须复制 `assets/provenance-template.md` 的字段，并在任务结束后运行 `story_kb.py record`。引用只能记录实际读取的路径和章节。
 
 ---
 
@@ -74,7 +102,7 @@ description: 用于完成小说/故事创作全流程的 SOP：从入口问诊�
 - 中篇：主角 + 1-2 个重要配角，每人对一条关系线
 - 长篇：人物小传库，主角 + 重要配角每人一张卡，交叉引用关系网
 
-**产出**：`人物卡.md` + `一句话故事.md`
+**产出**：`人物卡.md` + `一句话故事.md`。人物任务将 `resolve --stage character` 返回的方法与来源写入产出。
 
 ---
 
@@ -82,7 +110,7 @@ description: 用于完成小说/故事创作全流程的 SOP：从入口问诊�
 
 **目标**：用现成的结构框架把人物和内核立起来。
 
-**读 `references/structure-frameworks.md`**，根据驱动类型选框架：
+先以知识库 `wiki/guide-outline.md` 和 `resolve` 返回的原始资料为准；仅在降级状态下读 `references/structure-frameworks.md`。根据驱动类型选框架：
 - 情节驱动 -> 三幕式 / 英雄之旅
 - 人物驱动 -> 人物弧光骨架 / 五个转折点
 - 短篇 -> 单一转折点节拍表
@@ -94,6 +122,8 @@ description: 用于完成小说/故事创作全流程的 SOP：从入口问诊�
 - 长篇：卷纲 + 章纲 + （可选）`assets/world-bible-template.md` 世界观圣经
 
 > 不要硬套模板。如果发现框架和内容长歪了，回到阶段 1 重新发散，不要在错的骨架上堆情节。
+>
+> 长篇大纲必须使用深度检索。提到“九线写法”时，以知识库 `2-大纲与构思/3-大纲写法与流程/3.2-九线写法详解.md` 为唯一权威来源。
 
 ---
 
@@ -114,6 +144,8 @@ description: 用于完成小说/故事创作全流程的 SOP：从入口问诊�
 - 中篇：每章 2000-4000 字，章末留小钩子
 - 长篇：每章 3000-5000 字，章末必须有让读者想看下一章的硬钩
 
+写作前读取 `resolve --stage writing` 返回的 Wiki 页面；指定题材时必须同时读取题材原始资料。
+
 ---
 
 ### 阶段 4：修改润色（收敛 + 退回发散）
@@ -122,7 +154,7 @@ description: 用于完成小说/故事创作全流程的 SOP：从入口问诊�
 
 **先做诊断分流**，不要直接动笔改：
 
-读 `references/revision-checklist.md`，按顺序问自己：
+修改、改稿、审查、重写、润色、逻辑漏洞、一致性和修复都属于强制检索。先读取 `resolve --stage revision` 返回的 Wiki 与原始资料；`references/revision-checklist.md` 仅作降级 fallback。按顺序问自己：
 
 1. **是句子问题还是结构问题？**
    - 句子问题（用词不准、节奏拖、对话水）-> 直接润色
@@ -165,21 +197,49 @@ description: 用于完成小说/故事创作全流程的 SOP：从入口问诊�
 
 ---
 
-## 三、知识库联动（可配置）
+## 三、知识引用与运行台账
 
-本 skill 默认从用户已有的小说写作知识库中提取方法论。知识库路径可在会话开始时由用户指定：
+在产出 frontmatter 中记录：
 
-**默认路径**：无。skill 自带的 `references/` 下已有轻量骨架版方法论，开箱即用。
+- `knowledge_status`：`verified`、`degraded` 或 `not-applicable`
+- `knowledge_refs`：真实读取的相对路径与章节
+- `methods_applied`：方法名、应用位置、对应来源
 
-**接入知识库**：用户在会话中说出知识库路径（例如"用我自己的知识库 /path/to/my/kb"），你就把所有 reference 解析指向那个路径下的对应目录。
+正式产出完成后运行：
 
-**读 `references/knowledge-base-guide.md`** 了解默认知识库的结构，以及每个 reference 文件应该从知识库的哪些子目录提取方法论。
+```bash
+python3 <skill-root>/scripts/story_kb.py record \
+  --project-root "<project-root>" \
+  --task "<任务摘要>" \
+  --stage "<阶段>" \
+  --status verified \
+  --trigger "<触发原因>" \
+  --knowledge-ref "<相对路径>::<章节>" \
+  --method "<方法>::<产出位置>::knowledge_refs[0]" \
+  --output "<产出文件>"
+```
 
-当用户说"补充方法论""根据我的素材改"时，去对应知识库子目录读文件，把方法论融入当前阶段的产出。
+项目台账固定写入 `.story-crafting/runs.jsonl`。产出中的引用与台账必须一致。
 
 ---
 
-## 四、关键原则
+## 四、自进化工作流
+
+仅在出现可复用方法、稳定失败模式或用户明确确认某方案有效时，调用 `story_kb.py capture` 写入 `wiki/inbox/`。普通创作不产生候选。
+
+用户说“审查并晋升知识候选”时：
+
+1. 读取候选、相关 Wiki、原始资料和冲突登记表。
+2. 查重并说明适用边界、证据与可能冲突。
+3. 先运行 `promote`（不带 `--confirm`）展示计划。
+4. 获得用户明确确认后，才带 `--confirm` 晋升；未经确认不得写入正式 Wiki。
+5. 晋升后运行 `lint`，确认索引、来源和链接有效。
+
+用户说“检查小说知识库健康度”时运行 `story_kb.py lint`，报告断链、缺失来源、路由错误和孤立页面。
+
+---
+
+## 五、关键原则
 
 1. **不要在发散阶段做评判**。给方向，不给"哪个更好"的结论。让用户选。
 2. **每阶段必须落地成模板化产出**，不是一堆建议文字。没有产出不算完成。
@@ -187,19 +247,24 @@ description: 用于完成小说/故事创作全流程的 SOP：从入口问诊�
 4. **长篇要支持嵌套**。每一卷、每条人物弧光都要重新走一次"内核-人物-情节"的迷你循环，外层再有一条总纲级菱形链。
 5. **小白友好**。术语（节拍表、人物弧光、三幕式）第一次出现时用一句话解释，不要假设用户懂。
 6. **允许从任意阶段切入**。用户说"我已经有人物了，帮我写大纲"就直接进阶段 2，不要逼他从头走。
+7. **知识来源可追溯**。没有实际读取就不能写入 `knowledge_refs`。
+8. **知识库是事实源**。Skill references 只在普通任务的降级状态使用。
+9. **经验先暂存后晋升**。项目细节不能直接污染正式方法页。
 
 ---
 
-## 五、何时读哪个 reference
+## 六、何时读哪个 Skill fallback
 
-| 场景 | 读取文件 |
+仅当 `resolve` 返回 `status=degraded` 且任务不是强制检索时，才使用下列文件：
+
+| 场景 | fallback 文件 |
 |---|---|
 | 入口问诊完成，确定短篇 | `references/length-short.md` |
 | 入口问诊完成，确定中篇 | `references/length-novella.md` |
 | 入口问诊完成，确定长篇 | `references/length-long.md` |
 | 需要选结构框架 | `references/structure-frameworks.md` |
 | 进入修改阶段 | `references/revision-checklist.md` |
-| 需要从知识库补充方法论 | `references/knowledge-base-guide.md` |
+| 需要排查配置与检索规则 | `references/knowledge-base-guide.md` |
 | 需要人物卡模板 | `assets/character-sheet-template.md` |
 | 需要大纲模板 | `assets/outline-template.md` |
 | 需要长篇世界观圣经 | `assets/world-bible-template.md` |
@@ -207,12 +272,13 @@ description: 用于完成小说/故事创作全流程的 SOP：从入口问诊�
 
 ---
 
-## 六、一次会话的标准开场
+## 七、一次会话的标准开场
 
 当用户触发本 skill 时，按这个顺序开场：
 
-1. 简短说明本 skill 的协作方式（一句话："我会按发散-收敛的方式带你走完六个阶段，每一步都落地成具体产出。"）
-2. 问用户是否要从入口问诊开始，还是直接切入某一阶段
-3. 如果用户选入口问诊，按上面 3 个生活化问题问诊
-4. 如果用户直接切入某一阶段，问清楚篇幅类型，直接进入对应流程
-5. 在整个会话中保留 anchor（篇幅类型 + 驱动类型 + 当前阶段），每阶段结束都告诉用户"下一步可以做什么"
+1. 识别项目根目录、篇幅、阶段、题材和任务意图。
+2. 运行知识库预检并读取 `must_read`。
+3. 信息不足才进入入口问诊；信息充分时直接切入对应阶段。
+4. 保留 Anchor（篇幅 + 驱动类型 + 当前阶段 + 题材）。
+5. 每阶段落地正式产出、知识引用和运行台账。
+6. 阶段结束说明下一步；符合条件时暂存复盘候选。

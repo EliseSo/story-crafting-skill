@@ -1,0 +1,6 @@
+interface:
+  display_name: "Story Crafting"
+  short_description: "知识库驱动、可追溯并可进化的小说创作流程"
+  default_prompt: "Use $story-crafting to create or revise my story with verified knowledge-base references."
+policy:
+  allow_implicit_invocation: true

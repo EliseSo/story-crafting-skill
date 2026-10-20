@@ -1,3 +1,14 @@
+---
+knowledge_status: verified
+knowledge_refs:
+  - path: "待填写：实际读取的知识库相对路径"
+    section: "待填写：实际读取的章节"
+methods_applied:
+  - method: "修改与结构诊断"
+    applied_to: "修改清单/诊断与改动记录"
+    source: "knowledge_refs[0]"
+---
+
 # 修改润色 Checklist
 
 > 修改阶段逐条核对。建议先做完结构诊断（见 references/revision-checklist.md），再回来逐条核对句子级问题。

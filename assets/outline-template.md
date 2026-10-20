@@ -1,3 +1,14 @@
+---
+knowledge_status: verified
+knowledge_refs:
+  - path: "待填写：实际读取的知识库相对路径"
+    section: "待填写：实际读取的章节"
+methods_applied:
+  - method: "待填写：实际使用的结构方法"
+    applied_to: "大纲/节拍表、章纲或卷纲"
+    source: "knowledge_refs[0]"
+---
+
 # 大纲模板
 
 > 根据篇幅选用对应章节。短篇用节拍表，中篇用章节大纲，长篇用三层大纲。

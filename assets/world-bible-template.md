@@ -1,3 +1,14 @@
+---
+knowledge_status: verified
+knowledge_refs:
+  - path: "待填写：实际读取的知识库相对路径"
+    section: "待填写：实际读取的章节"
+methods_applied:
+  - method: "世界观与长篇状态管理"
+    applied_to: "世界观圣经/规则、时间线与状态表"
+    source: "knowledge_refs[0]"
+---
+
 # 世界观圣经模板（长篇专用）
 
 > 长篇必须有世界观圣经，随写随更。否则力量体系会崩、地理会矛盾、规则会前后冲突。

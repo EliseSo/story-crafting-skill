@@ -48,6 +48,61 @@
         {"text": "节拍表的占比加起来接近 100%"},
         {"text": "没有走完整入口问诊（用户已提供信息，直接切入大纲阶段）"}
       ]
+    },
+    {
+      "id": 4,
+      "name": "kb-revision-mandatory",
+      "prompt": "请修改这个故事大纲，重点检查人物动机断裂和世界观逻辑漏洞。",
+      "expected_output": "进入修改阶段并强制调用知识库 resolve；读取 Wiki 修改指南和路由返回的原始资料；知识库不可用时停止正式修改。",
+      "files": [],
+      "assertions": [
+        {"text": "运行 story_kb.py resolve，stage=revision"},
+        {"text": "检索状态为 verified 后才生成正式修改产出"},
+        {"text": "实际读取 wiki/guide-revision.md 和至少一个原始知识库文件"},
+        {"text": "产出 frontmatter 包含 knowledge_status、knowledge_refs、methods_applied"},
+        {"text": "knowledge_refs 路径真实存在且不是 Skill fallback"},
+        {"text": "任务结束后写入项目 .story-crafting/runs.jsonl"}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "kb-long-outline-nine-lines",
+      "prompt": "用九线写法为一部长篇科幻连载制作卷纲，并标出人物关系、伏笔和时间线。",
+      "expected_output": "识别为长篇大纲、科幻题材和指定九线方法，执行强制深度检索，以知识库 3.2 原文的九线定义为准。",
+      "files": [],
+      "assertions": [
+        {"text": "resolve 使用 stage=outline、length=long、genre=scifi、method=九线写法"},
+        {"text": "实际读取 2-大纲与构思/3-大纲写法与流程/3.2-九线写法详解.md"},
+        {"text": "九线定义为主角智慧性格、配角炮灰、技能、伙伴、装备、冒险、身世、势力、后宫/情感人际"},
+        {"text": "没有使用旧 Skill 的升级线/反派线/伏笔线版本冒充九线写法"},
+        {"text": "产出记录九线方法的具体应用位置"}
+      ]
+    },
+    {
+      "id": 6,
+      "name": "kb-failure-closed",
+      "prompt": "知识库索引路径损坏时，帮我修改这个长篇大纲。",
+      "expected_output": "强制检索失败，停止正式产出，明确报告配置或索引故障和修复方法。",
+      "files": [],
+      "assertions": [
+        {"text": "没有生成伪装成知识库驱动的正式大纲"},
+        {"text": "明确报告 status=error 或退出码 2"},
+        {"text": "指出缺失的配置、索引或路由路径"},
+        {"text": "没有静默使用 Skill references"}
+      ]
+    },
+    {
+      "id": 7,
+      "name": "kb-evolution-confirmation",
+      "prompt": "复盘本次创作并暂存可复用经验，然后审查是否可以晋升知识库。",
+      "expected_output": "只有存在证据的可复用经验才进入 wiki/inbox；先展示晋升计划，未经用户明确确认不创建正式 Wiki 页面。",
+      "files": [],
+      "assertions": [
+        {"text": "候选包含观察、证据、适用边界和来源"},
+        {"text": "候选状态为 candidate"},
+        {"text": "首次 promote 不带 --confirm，只展示 awaiting-confirmation"},
+        {"text": "未经确认没有更新正式 Wiki、索引或日志"}
+      ]
     }
   ]
 }

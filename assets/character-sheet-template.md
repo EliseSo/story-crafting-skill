@@ -1,3 +1,14 @@
+---
+knowledge_status: verified
+knowledge_refs:
+  - path: "待填写：实际读取的知识库相对路径"
+    section: "待填写：实际读取的章节"
+methods_applied:
+  - method: "人物设定方法"
+    applied_to: "人物卡/四格核心与人物弧光"
+    source: "knowledge_refs[0]"
+---
+
 # 人物卡模板
 
 > 每个重要角色填一张卡。短篇主角填一张即可；中篇主角 + 1-2 个重要配角（每人一卡）；长篇做人物圣经（每人一卡 + 关系网图）。

@@ -18,7 +18,8 @@
 - **按篇幅分叉**：短篇/中篇/长篇各有 SOP，差异不是字数，是"要不要维护跨章节状态"
 - **表演型短篇适配**：单口喜剧、演讲、独白这类非叙事短篇，节拍表有专门映射
 - **修改阶段做诊断分流**：先判断是句子问题还是结构问题，结构问题退回对应阶段
-- **知识库联动**：默认从本地小说写作知识库提取方法论，路径可配置；不用知识库也自带轻量骨架版方法论文档
+- **知识库驱动**：从持久配置读取小说知识库；每次任务先读 Wiki 索引，修改、卡壳、长篇大纲和题材专项强制回查原始资料
+- **可追溯与自进化**：产出记录 `knowledge_refs`，项目保存运行台账，有效经验先进入候选区、确认后晋升 Wiki
 - **包装发布通用建议**：提供标题、简介、钩子、润色的通用做法，不依赖任何外部工具或 skill
 
 ## 安装
@@ -36,6 +37,8 @@ cp -r story-crafting ~/.claude/skills/
 ```
 story-crafting/
 ├── SKILL.md                          主流程 + 入口问诊 + 路由
+├── scripts/
+│   └── story_kb.py                   配置、检索、记录、复盘、晋升、健康检查
 ├── references/
 │   ├── length-short.md               短篇 SOP（含表演型短篇适配）
 │   ├── length-novella.md             中篇 SOP
@@ -47,7 +50,8 @@ story-crafting/
     ├── character-sheet-template.md   人物卡模板
     ├── outline-template.md           大纲模板（短/中/长三层）
     ├── world-bible-template.md       世界观圣经模板（长篇用）
-    └── revision-checklist-template.md  修改核对清单
+    ├── revision-checklist-template.md  修改核对清单
+    └── provenance-template.md          知识引用模板
 ```
 
 ## 六个阶段
@@ -73,15 +77,21 @@ story-crafting/
 
 ## 知识库配置
 
-skill 支持从本地小说写作知识库提取方法论，路径可在会话中覆盖。
+Skill 从跨 Claude/Codex 的持久配置读取知识库，不需要每次会话重复输入路径。
 
-**默认配置**：skill 自带轻量骨架版方法论文档（`references/` 下），开箱即用，不依赖任何外部知识库。
+全局配置：`~/.config/story-crafting/config.toml`
 
-**接入自己的知识库**：会话中说出路径即可覆盖，例如：
-- "用我自己的知识库 /path/to/my/kb"
-- "知识库在 D:/novels/kb"
+项目覆盖：项目根目录 `.story-crafting.toml`
 
-如果知识库结构与默认预期不同，告诉 skill 每个子目录对应什么主题，它会按需读取。详见 `references/knowledge-base-guide.md`。
+```toml
+version = 1
+knowledge_base_root = "/absolute/path/to/knowledge-base"
+wiki_index = "wiki/index.md"
+router = "wiki/router.json"
+source_priority = ["source", "wiki", "skill-reference"]
+```
+
+使用和故障排查详见 `references/knowledge-base-guide.md`。
 
 ## 使用示例
 
@@ -126,9 +136,9 @@ skill 在三个测试用例上全部通过断言，baseline 只通过 46%。主�
 
 ## 限制
 
-- 当前为轻量骨架版，references 下的方法论文档是通用版，未深度接入本地知识库的具体章节
 - 未专门覆盖剧本/影视分镜的格式要求（短篇剧本按字数换算，但分镜格式不在范围内）
 - 包装发布阶段提供通用建议，不绑定任何特定的标题优化、钩子优化或文风润色工具
+- 当前使用结构化 Wiki 路由和原文回查，不包含向量数据库或 embeddings
 
 ## License
 
